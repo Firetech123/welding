@@ -337,6 +337,86 @@
       line-height: 1;
     }
 
+    /* Message Form Styles */
+    .message-form-card {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--deep);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .form-alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .form-alert-success {
+      background: #f0fdf4;
+      color: var(--primary);
+      border: 1px solid #bbf7d0;
+    }
+
+    .form-alert-error {
+      background: #fef2f2;
+      color: var(--secondary);
+      border: 1px solid #fecaca;
+    }
+
     footer {
       text-align: center;
       padding: 25px 20px 50px;
@@ -364,6 +444,7 @@
       <a href="#services">Services</a>
       <a href="gallery.html">Gallery</a>
       <a href="#contact">Contact</a>
+      <a href="#message">Send Message</a>
     </nav>
     <img src="header/mothotsi.jpg" alt="Mothotsi Aluminium & Steel Projects" />
   </header>
@@ -534,6 +615,55 @@
         <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer"><span class="icon">🌐</span> Facebook: Mothotsi Aluminium & Steel Projects</a>
       </div>
     </section>
+
+    <!-- Customer Message Section -->
+    <section class="card message-form-card" id="message">
+      <h2>Send Us a Message</h2>
+      <p style="color: var(--muted); margin-bottom: 20px;">Have a question or need a quote? Write your message below and we will get back to you shortly.</p>
+
+      <div id="msgAlert" class="form-alert"></div>
+
+      <form id="customerMsgForm">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+          <div class="form-group">
+            <label for="msgName">Full Name *</label>
+            <input type="text" id="msgName" class="form-control" placeholder="e.g. John Doe" required />
+          </div>
+          <div class="form-group">
+            <label for="msgPhone">Phone / WhatsApp Number *</label>
+            <input type="tel" id="msgPhone" class="form-control" placeholder="e.g. 064 622 8454" required />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+          <div class="form-group">
+            <label for="msgEmail">Email Address (Optional)</label>
+            <input type="email" id="msgEmail" class="form-control" placeholder="e.g. john@example.com" />
+          </div>
+          <div class="form-group">
+            <label for="msgService">Service Needed *</label>
+            <select id="msgService" class="form-control" required>
+              <option value="" disabled selected>-- Select a Service --</option>
+              <option value="Welding & Fabrication">Welding & Fabrication</option>
+              <option value="Tank Maintenance">Tank Maintenance</option>
+              <option value="Plumbing & Pipework">Plumbing & Pipework</option>
+              <option value="Household Carpentry">Household Carpentry</option>
+              <option value="Handyman Services">Handyman Services</option>
+              <option value="Chainsaw Tree Cutting">Chainsaw Tree Cutting</option>
+              <option value="Motors & Access Systems">Motors & Access Systems</option>
+              <option value="General Inquiry / Quotation">General Inquiry / Quotation</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="msgContent">Your Message *</label>
+          <textarea id="msgContent" class="form-control" placeholder="Describe the job or ask any question here..." required></textarea>
+        </div>
+
+        <button type="submit" id="msgSubmitBtn" class="btn-submit">Send Message</button>
+      </form>
+    </section>
   </main>
 
   <footer>
@@ -541,6 +671,63 @@
   </footer>
 
   <script>
+    const BACKEND_URL = 'https://shrill-disk-8aac.tshiamomichael4.workers.dev';
+
+    const customerMsgForm = document.getElementById('customerMsgForm');
+    const msgAlert = document.getElementById('msgAlert');
+    const msgSubmitBtn = document.getElementById('msgSubmitBtn');
+
+    if (customerMsgForm) {
+      customerMsgForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('msgName').value.trim();
+        const phone = document.getElementById('msgPhone').value.trim();
+        const email = document.getElementById('msgEmail').value.trim();
+        const service = document.getElementById('msgService').value;
+        const message = document.getElementById('msgContent').value.trim();
+
+        if (!name || !phone || !message) {
+          showMsgAlert('Please fill out all required fields.', 'error');
+          return;
+        }
+
+        msgSubmitBtn.disabled = true;
+        msgSubmitBtn.textContent = 'Sending Message...';
+
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/messages`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, phone, email, service, message })
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.error || 'Failed to send message. Please try again.');
+          }
+
+          showMsgAlert('Thank you! Your message has been sent successfully. We will get back to you soon.', 'success');
+          customerMsgForm.reset();
+        } catch (err) {
+          showMsgAlert(err.message, 'error');
+        } finally {
+          msgSubmitBtn.disabled = false;
+          msgSubmitBtn.textContent = 'Send Message';
+        }
+      });
+    }
+
+    function showMsgAlert(msg, type) {
+      msgAlert.textContent = msg;
+      msgAlert.className = `form-alert form-alert-${type}`;
+      msgAlert.style.display = 'block';
+      msgAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
     const menuToggle = document.getElementById('menuToggle');
     const menuPanel = document.getElementById('menuPanel');
 
