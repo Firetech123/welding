@@ -41,6 +41,12 @@ async function getImageList(env) {
   return index || [];
 }
 
+// Helper to retrieve all customer messages
+async function getMessagesList(env) {
+  const list = await env.FIRE_KV.get("customer_messages_list", { type: "json" });
+  return list || [];
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -184,6 +190,75 @@ export default {
         // Remove actual KV entries
         await env.FIRE_KV.delete(`img:${id}`);
         await env.FIRE_KV.delete(`meta:${id}`);
+
+        return jsonResponse({ success: true });
+      } catch (err) {
+        return jsonResponse({ error: err.message }, 500);
+      }
+    }
+
+    // API Endpoint: Send Customer Message (POST - Public)
+    if (path === "/api/messages" && request.method === "POST") {
+      try {
+        const { name, phone, email, service, message } = await request.json();
+
+        if (!name || !phone || !message) {
+          return jsonResponse({ error: "Name, phone number, and message are required." }, 400);
+        }
+
+        const id = crypto.randomUUID();
+        const newMessage = {
+          id,
+          name: String(name).trim(),
+          phone: String(phone).trim(),
+          email: String(email || "").trim(),
+          service: String(service || "General Inquiry").trim(),
+          message: String(message).trim(),
+          createdAt: Date.now()
+        };
+
+        const messagesList = await getMessagesList(env);
+        messagesList.unshift(newMessage); // Add newest first
+
+        await env.FIRE_KV.put("customer_messages_list", JSON.stringify(messagesList));
+
+        return jsonResponse({ success: true, message: newMessage }, 201);
+      } catch (err) {
+        return jsonResponse({ error: err.message }, 500);
+      }
+    }
+
+    // API Endpoint: Get Customer Messages (GET - Protected)
+    if (path === "/api/messages" && request.method === "GET") {
+      const authorized = checkAuth(request);
+      if (!authorized) {
+        return jsonResponse({ error: "Unauthorized" }, 401);
+      }
+
+      try {
+        const messages = await getMessagesList(env);
+        return jsonResponse(messages);
+      } catch (err) {
+        return jsonResponse({ error: err.message }, 500);
+      }
+    }
+
+    // API Endpoint: Delete Customer Message (POST - Protected)
+    if (path === "/api/messages/delete" && request.method === "POST") {
+      const authorized = checkAuth(request);
+      if (!authorized) {
+        return jsonResponse({ error: "Unauthorized" }, 401);
+      }
+
+      try {
+        const { id } = await request.json();
+        if (!id) {
+          return jsonResponse({ error: "Missing Message ID" }, 400);
+        }
+
+        let messagesList = await getMessagesList(env);
+        messagesList = messagesList.filter(msg => msg.id !== id);
+        await env.FIRE_KV.put("customer_messages_list", JSON.stringify(messagesList));
 
         return jsonResponse({ success: true });
       } catch (err) {
