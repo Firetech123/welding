@@ -29,28 +29,53 @@
       background-size: cover;
     }
 
-    header {
-      margin: 0;
-      padding: 0;
-    }
-
     .site-header {
       position: relative;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--deep);
+      line-height: 1.2;
+      margin: 0;
     }
 
     .menu-toggle {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      z-index: 3;
       display: flex;
       flex-direction: column;
       gap: 5px;
       padding: 10px;
       border: none;
       border-radius: 10px;
-      background: rgba(255,255,255,0.96);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+      background: #f8fafc;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       cursor: pointer;
     }
 
@@ -77,16 +102,17 @@
 
     .menu-panel {
       position: absolute;
-      top: 58px;
-      right: 16px;
-      z-index: 4;
+      top: 75px;
+      right: 20px;
+      z-index: 20;
       display: none;
       flex-direction: column;
-      min-width: 170px;
+      min-width: 180px;
       padding: 10px;
       border-radius: 12px;
       background: white;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border);
     }
 
     .menu-panel.open {
@@ -104,12 +130,6 @@
     .menu-panel a:hover {
       background: #f1f5f9;
       color: var(--primary);
-    }
-
-    header img {
-      width: 100%;
-      height: auto;
-      display: block;
     }
 
     .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
@@ -434,6 +454,10 @@
 </head>
 <body>
   <header class="site-header">
+    <a href="index.html" class="header-brand">
+      <img src="header/logo.jpeg" alt="Mothotsi Logo" class="logo-img" />
+      <h1 class="brand-title">Mothotsi Aluminium &amp; Steel Projects</h1>
+    </a>
     <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
       <span></span>
       <span></span>
@@ -446,7 +470,6 @@
       <a href="#contact">Contact</a>
       <a href="#message">Send Message</a>
     </nav>
-    <img src="header/mothotsi.jpg" alt="Mothotsi Aluminium & Steel Projects" />
   </header>
 
   <main class="container">

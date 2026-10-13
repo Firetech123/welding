@@ -30,6 +30,43 @@
       padding: 20px;
     }
 
+    .site-header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-img {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--deep);
+      line-height: 1.2;
+      margin: 0;
+    }
+
     .container {
       max-width: 900px;
       margin: 0 auto;
@@ -297,6 +334,14 @@
   </style>
 </head>
 <body>
+  <header class="site-header">
+    <a href="index.html" class="header-brand">
+      <img src="header/logo.jpeg" alt="Mothotsi Logo" class="logo-img" />
+      <h1 class="brand-title">Mothotsi Aluminium &amp; Steel Projects</h1>
+    </a>
+    <a href="index.html" class="btn btn-secondary">Home</a>
+  </header>
+
   <div class="container">
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="card login-container">
