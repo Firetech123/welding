@@ -21,9 +21,44 @@
       background-size: cover;
       color: var(--text);
     }
+    .site-header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-img {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--deep);
+      line-height: 1.2;
+      margin: 0;
+    }
+
     .container { max-width: 900px; margin: 0 auto; }
-    header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 12px; margin-bottom: 20px; }
-    header h1 { margin: 0; color: var(--deep); }
     a.button {
       display: inline-block;
       padding: 10px 18px;
@@ -56,12 +91,16 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Gallery</h1>
-      <a class="button" href="index.html">Back</a>
-    </header>
+  <header class="site-header">
+    <a href="index.html" class="header-brand">
+      <img src="header/logo.jpeg" alt="Mothotsi Logo" class="logo-img" />
+      <h1 class="brand-title">Mothotsi Aluminium &amp; Steel Projects</h1>
+    </a>
+    <a class="button" href="index.html">Back</a>
+  </header>
 
+  <div class="container">
+    <h2>Gallery</h2>
     <p>Explore some of our recent welding, aluminium, and home project work.</p>
 
     <div class="gallery" id="galleryContainer">
