@@ -82,6 +82,7 @@
       border: 1px solid var(--border);
       box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
       transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
     }
     .tile:hover {
       transform: translateY(-2px);
@@ -89,6 +90,73 @@
     }
     .tile img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
     .tile p { margin: 8px 0 0; font-weight: 600; color: var(--deep); font-size: 0.95rem; }
+
+    /* Modal / Lightbox Styles */
+    .lightbox-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .lightbox-modal.active {
+      display: flex;
+    }
+    .lightbox-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 80vh;
+      border-radius: 8px;
+      object-fit: contain;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .lightbox-caption {
+      margin-top: 12px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 16px;
+      border-radius: 20px;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: -15px;
+      right: -15px;
+      background: #b91c1c;
+      color: white;
+      border: 2px solid white;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    .lightbox-close:hover {
+      background: #991b1b;
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body>
@@ -111,9 +179,54 @@
     </div>
   </div>
 
+  <!-- Lightbox Modal -->
+  <div class="lightbox-modal" id="lightboxModal" aria-hidden="true" role="dialog">
+    <div class="lightbox-content" id="lightboxContent">
+      <button class="lightbox-close" id="lightboxClose" aria-label="Close modal">&times;</button>
+      <img src="" alt="" class="lightbox-img" id="lightboxImg" />
+      <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+  </div>
+
   <script>
     // Configuration for backend URL (can point to local or cloudflare worker)
     const BACKEND_URL = 'https://red-glitter-5e24.michealtshiamo1.workers.dev'; // Leave blank if on same host, or define standard backend endpoint if hosting static files elsewhere
+
+    // Lightbox modal logic
+    const lightboxModal = document.getElementById('lightboxModal');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+    const lightboxClose = document.getElementById('lightboxClose');
+
+    function openLightbox(src, title) {
+      if (!src) return;
+      lightboxImg.src = src;
+      lightboxImg.alt = title || '';
+      lightboxCaption.textContent = title || '';
+      lightboxModal.classList.add('active');
+      lightboxModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeLightbox() {
+      lightboxModal.classList.remove('active');
+      lightboxModal.setAttribute('aria-hidden', 'true');
+      lightboxImg.src = '';
+      lightboxCaption.textContent = '';
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+
+    lightboxModal.addEventListener('click', (e) => {
+      if (e.target === lightboxModal) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightboxModal.classList.contains('active')) {
+        closeLightbox();
+      }
+    });
 
     // Escape helper
     function escapeHtml(str) {
@@ -151,6 +264,14 @@
             <img id="gallery-img-${img.id}" src="" alt="${escapeHtml(img.title)}" />
             <p>${escapeHtml(img.title)}</p>
           `;
+
+          tile.addEventListener('click', () => {
+            const imgEl = document.getElementById(`gallery-img-${img.id}`);
+            if (imgEl && imgEl.src) {
+              openLightbox(imgEl.src, img.title);
+            }
+          });
+
           container.appendChild(tile);
 
           // Fetch the raw base64 data to set as source
